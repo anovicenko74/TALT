@@ -7,10 +7,8 @@ class CFG {
     if (!this.rules[symbol]) {
       return symbol;
     }
-    console.log(symbol)
     const expansion =
       this.rules[symbol][Math.floor(Math.random() * this.rules[symbol].length)];
-    console.log(expansion)
     return expansion.map(sym => this.generate(sym)).join('');
   }
 }
@@ -56,7 +54,7 @@ for (let i = 0; i < 10; i++) {
 const gRules = {
   A1: [['A2', 'A3']],
   A2: [['2', 'A7', 'A6', 'A7', 'A6', 'A4'], ['2', 'A7', 'A6', 'A7', 'A6']],
-  A4: [['*', 'A6', 'A4', 'A5']],
+  A4: [['*', 'A6', 'A4', 'A5'], ['*', 'A6', 'A5']],
   A3: [['-', 'A9', 'A8', 'A9']],
   A5: [['-', 'A9']],
   A6: [['2']],
@@ -66,6 +64,6 @@ const gRules = {
 };
 console.log('--- Н/Ф Грейбах ---')
 const gnfCfg = new CFG(gRules);
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 20; i++) {
   console.log(gnfCfg.generate('A1'));
 }
