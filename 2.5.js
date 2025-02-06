@@ -7,16 +7,15 @@ class DFA {
     this.acceptStates = acceptStates;
   }
 
-  // Функция для проверки строки
   accepts(inputString) {
     let currentState = this.startState;
     for (let symbol of inputString) {
       if (!this.alphabet.includes(symbol)) {
-        return false; // Невалидный символ
+        return false;
       }
       const nextState = this.transitionFunction[currentState][symbol];
       if (nextState === undefined) {
-        return false; // Переход не определен
+        return false;
       }
       currentState = nextState;
     }
@@ -24,19 +23,16 @@ class DFA {
   }
 }
 
-// Функция для построения пересечения двух автоматов
 function intersection(dfa1, dfa2) {
   const states = [];
   const acceptStates = [];
   const transitionFunction = {};
 
-  // Создаем все состояния как пары состояний из обоих автоматов
   for (let state1 of dfa1.states) {
     for (let state2 of dfa2.states) {
       const newState = `${state1},${state2}`;
       states.push(newState);
 
-      // Если оба состояния принимающие, то новое состояние тоже принимающее
       if (
         dfa1.acceptStates.includes(state1) &&
         dfa2.acceptStates.includes(state2)
@@ -44,7 +40,6 @@ function intersection(dfa1, dfa2) {
         acceptStates.push(newState);
       }
 
-      // Создаем функцию переходов для нового состояния
       transitionFunction[newState] = {};
       for (let symbol of dfa1.alphabet) {
         const nextState1 = dfa1.transitionFunction[state1][symbol];
@@ -65,19 +60,16 @@ function intersection(dfa1, dfa2) {
   );
 }
 
-// Функция для построения объединения двух автоматов
 function union(dfa1, dfa2) {
   const states = [];
   const acceptStates = [];
   const transitionFunction = {};
 
-  // Создаем все состояния как пары состояний из обоих автоматов
   for (let state1 of dfa1.states) {
     for (let state2 of dfa2.states) {
       const newState = `${state1},${state2}`;
       states.push(newState);
 
-      // Если хотя бы одно из состояний принимающее, то новое состояние тоже принимающее
       if (
         dfa1.acceptStates.includes(state1) ||
         dfa2.acceptStates.includes(state2)
@@ -85,7 +77,6 @@ function union(dfa1, dfa2) {
         acceptStates.push(newState);
       }
 
-      // Создаем функцию переходов для нового состояния
       transitionFunction[newState] = {};
       for (let symbol of dfa1.alphabet) {
         const nextState1 = dfa1.transitionFunction[state1][symbol];
@@ -106,19 +97,16 @@ function union(dfa1, dfa2) {
   );
 }
 
-// Функция для построения разности двух автоматов (исключение)
 function difference(dfa1, dfa2) {
   const states = [];
   const acceptStates = [];
   const transitionFunction = {};
 
-  // Создаем все состояния как пары состояний из обоих автоматов
   for (let state1 of dfa1.states) {
     for (let state2 of dfa2.states) {
       const newState = `${state1},${state2}`;
       states.push(newState);
 
-      // Если первое состояние принимающее, а второе нет, то новое состояние принимающее
       if (
         dfa1.acceptStates.includes(state1) &&
         !dfa2.acceptStates.includes(state2)
@@ -126,7 +114,6 @@ function difference(dfa1, dfa2) {
         acceptStates.push(newState);
       }
 
-      // Создаем функцию переходов для нового состояния
       transitionFunction[newState] = {};
       for (let symbol of dfa1.alphabet) {
         const nextState1 = dfa1.transitionFunction[state1][symbol];
@@ -147,25 +134,64 @@ function difference(dfa1, dfa2) {
   );
 }
 
-// Функция для проверки строки всеми автоматами и их комбинациями
-function checkStrings(dfa1, dfa2, inputString) {
-  console.log(`Input string: ${inputString}`);
-  console.log(`DFA1 accepts: ${dfa1.accepts(inputString)}`);
-  console.log(`DFA2 accepts: ${dfa2.accepts(inputString)}`);
+function concatenate(dfa1, dfa2) {
+  const states = [];
+  const acceptStates = [];
+  const transitionFunction = {};
 
-  const intersectionDFA = intersection(dfa1, dfa2);
-  console.log(`Intersection accepts: ${intersectionDFA.accepts(inputString)}`);
+  for (let state1 of dfa1.states) {
+    for (let state2 of dfa2.states) {
+      const newState = `${state1},${state2}`;
+      states.push(newState);
 
-  const unionDFA = union(dfa1, dfa2);
-  console.log(`Union accepts: ${unionDFA.accepts(inputString)}`);
+      if (dfa1.acceptStates.includes(state1) && state2 === dfa2.startState) {
+        acceptStates.push(newState);
+      }
 
-  const differenceDFA = difference(dfa1, dfa2);
-  console.log(
-    `Difference (DFA1 - DFA2) accepts: ${differenceDFA.accepts(inputString)}`
+      transitionFunction[newState] = {};
+      for (let symbol of dfa1.alphabet) {
+        const nextState1 = dfa1.transitionFunction[state1][symbol];
+        const nextState2 = dfa2.transitionFunction[state2][symbol];
+        if (nextState1 !== undefined) {
+          if (dfa1.acceptStates.includes(nextState1)) {
+            transitionFunction[newState][symbol] = `${nextState1},${dfa2.startState}`;
+          } else {
+            transitionFunction[newState][symbol] = `${nextState1},${state2}`;
+          }
+        }
+      }
+    }
+  }
+
+  return new DFA(
+    states,
+    dfa1.alphabet,
+    transitionFunction,
+    `${dfa1.startState},${dfa2.startState}`,
+    acceptStates
   );
 }
 
-// Пример использования
+function checkStrings(dfa1, dfa2, inputString) {
+  console.log(`Входная строка: ${inputString}`);
+  console.log(`1-ый автомат принимает: ${dfa1.accepts(inputString)}`);
+  console.log(`2-ой автомат принимает: ${dfa2.accepts(inputString)}`);
+
+  const intersectionDFA = intersection(dfa1, dfa2);
+  console.log(`Пересечение принимает: ${intersectionDFA.accepts(inputString)}`);
+
+  const unionDFA = union(dfa1, dfa2);
+  console.log(`Объединение принимает: ${unionDFA.accepts(inputString)}`);
+
+  const differenceDFA = difference(dfa1, dfa2);
+  console.log(
+    `Разность (первый - второй) принимает: ${differenceDFA.accepts(inputString)}`
+  );
+
+  const concatenationDFA = concatenate(dfa1, dfa2);
+  console.log(`Конкатенация принимает: ${concatenationDFA.accepts(inputString)}`);
+}
+
 const dfa1 = new DFA(
   ['q1', 'p1', 'r1'],
   ['a', 'b'],
@@ -190,4 +216,6 @@ const dfa2 = new DFA(
   ['r2']
 );
 
-checkStrings(dfa1, dfa2, 'b');
+checkStrings(dfa1, dfa2, 'aaaabb');
+checkStrings(dfa1, dfa2, 'baab');
+checkStrings(dfa1, dfa2, 'babab');

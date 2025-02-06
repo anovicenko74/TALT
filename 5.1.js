@@ -71,8 +71,7 @@ function evaluateRPN(rpn) {
     return stack[0];
 }
 
-// Example usage:
-const expression = "3 add 5 mul 8 div 2 sub 4";
+const expression = "(3 add 10) mul 10 div 2 mod 9";
 const rpn = infixToRPN(expression);
 console.log("RPN:", rpn.join(' '));
 const result = evaluateRPN(rpn);

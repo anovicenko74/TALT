@@ -206,7 +206,7 @@ def performance_test(string):
     grammar.add_rule("V", "b")
     grammar.add_rule("E", "VC")
 
-    string = "+baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    string = "+baabccc"
 
     # CYK парсер
     start_time = time.time()

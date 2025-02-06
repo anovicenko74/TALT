@@ -86,7 +86,8 @@ grammar.add_rule("V", "AE")
 grammar.add_rule("V", "b")
 grammar.add_rule("E", "VC")
 
-string = "+baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+string = "+baabccc"
+# string = "+baabcc"
 parser = CYK_Parser(grammar)
 accepted, table, backtrace = parser.parse(string)
 
